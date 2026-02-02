@@ -4,7 +4,7 @@ def prim(graph, V, labels):
     selected = [False] * V
     selected[0] = True
     edges = 0
-    total_cost = 0   # 👉 total weight
+    total_cost = 0   # total weight
 
     print("Edge : Weight")
 
@@ -23,7 +23,7 @@ def prim(graph, V, labels):
                             y = j
 
         print(f"{labels[x]} - {labels[y]} : {graph[x][y]}")
-        total_cost += graph[x][y]   # 👉 add weight
+        total_cost += graph[x][y]   # add weight
         selected[y] = True
         edges += 1
 
@@ -54,5 +54,6 @@ C - E : 3
 E - D : 2
 E - F : 2
 Total Weight of MST = 17
+
 
 C:\Users\HP\Desktop> """
