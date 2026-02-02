@@ -1,0 +1,58 @@
+import sys
+
+def prim(graph, V, labels):
+    selected = [False] * V
+    selected[0] = True
+    edges = 0
+    total_cost = 0   # 👉 total weight
+
+    print("Edge : Weight")
+
+    while edges < V - 1:
+        minimum = sys.maxsize
+        x = 0
+        y = 0
+
+        for i in range(V):
+            if selected[i]:
+                for j in range(V):
+                    if not selected[j] and graph[i][j] != 0:
+                        if minimum > graph[i][j]:
+                            minimum = graph[i][j]
+                            x = i
+                            y = j
+
+        print(f"{labels[x]} - {labels[y]} : {graph[x][y]}")
+        total_cost += graph[x][y]   # 👉 add weight
+        selected[y] = True
+        edges += 1
+
+    print("Total Weight of MST =", total_cost)
+
+
+# Graph given by you
+graph = [
+# A  B  C  D  E  F
+ [0, 7, 8, 0, 0, 0],  # A
+ [7, 0, 3, 6, 0, 0],  # B
+ [8, 3, 0, 4, 3, 0],  # C
+ [0, 6, 4, 0, 2, 5],  # D
+ [0, 0, 3, 2, 0, 2],  # E
+ [0, 0, 0, 5, 2, 0]   # F
+]
+
+labels = ['A', 'B', 'C', 'D', 'E', 'F']
+
+prim(graph, 6, labels)
+
+"""OUTPUT 
+C:\Users\HP\Desktop>python prim.py
+Edge : Weight
+A - B : 7
+B - C : 3
+C - E : 3
+E - D : 2
+E - F : 2
+Total Weight of MST = 17
+
+C:\Users\HP\Desktop> """
