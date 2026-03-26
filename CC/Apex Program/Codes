@@ -1,0 +1,128 @@
+Apex Class
+public class EmployeeController {
+    
+    public Employee__c employee {get; set;}
+    public List<Employee__c> employees {get; set;}
+    public Id selectedId {get; set;}
+    
+    public EmployeeController() {
+        employee = new Employee__c();
+        refreshEmployees();
+    }
+    
+    private void refreshEmployees() {
+        employees = [SELECT Id, Name, Employee_Id__c, Salary__c, JoiningDate__c, Department__c
+                     FROM Employee__c 
+                     ORDER BY CreatedDate DESC];
+    }
+    
+    public PageReference saveEmployee() {
+        try {
+            if (employee.Id == null) {
+                insert employee;
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Employee created successfully!'));
+            } else {
+                update employee;
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Employee updated successfully!'));
+            }
+            
+            employee = new Employee__c();
+            refreshEmployees();
+        } catch (Exception ex) {
+            ApexPages.addMessages(ex);
+        }
+        return null;
+    }
+    
+    public void editEmployee() {
+        if (selectedId != null) {
+            employee = [SELECT Id, Name, Employee_Id__c, Salary__c, JoiningDate__c, Department__c 
+                        FROM Employee__c 
+                        WHERE Id = :selectedId LIMIT 1];
+        }
+    }
+    
+    public void deleteEmployee() {
+        if (selectedId != null) {
+            try {
+                delete new Employee__c(Id = selectedId);
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Employee deleted successfully!'));
+                refreshEmployees();
+            } catch (Exception ex) {
+                ApexPages.addMessages(ex);
+            }
+            selectedId = null;
+        }
+    }
+    
+    public PageReference cancel() {
+        employee = new Employee__c();
+        return null;
+    }
+}
+
+Visualforce page (UI)
+<apex:page controller="EmployeeController" showHeader="true" sidebar="true" tabStyle="Employee__c">
+    <apex:form >
+        <apex:pageMessages />
+        
+        <apex:pageBlock title="Employee Database Management System" mode="edit">
+            
+            <!-- Create / Update Form -->
+            <apex:pageBlockSection title="Employee Details" columns="2">
+                
+                <apex:inputField value="{!employee.Name}" required="true" label="Employee Name"/>
+                
+                <!-- NEW: Custom Employee ID -->
+                <apex:outputField value="{!employee.Employee_Id__c}" label="Employee ID"/>
+                
+                <apex:inputField value="{!employee.Salary__c}"/>
+                <apex:inputField value="{!employee.JoiningDate__c}"/>
+                
+                <!-- NEW: Department -->
+                <apex:inputField value="{!employee.Department__c}" label="Department"/>
+                
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection columns="1">
+                <apex:commandButton action="{!saveEmployee}" value="Save Employee" 
+                                    style="background-color:#0070d2;color:white;font-weight:bold;"/>
+                
+                <apex:commandButton action="{!cancel}" value="Cancel" 
+                                    rendered="{!NOT(ISNULL(employee.Id))}" immediate="true"/>
+            </apex:pageBlockSection>
+            
+            <!-- Employee List -->
+            <apex:pageBlockSection title="All Employees ({!employees.size} records)">
+                <apex:pageBlockTable value="{!employees}" var="emp" id="empTable">
+                    
+                    <apex:column headerValue="Record ID">
+                        {!emp.Id}
+                    </apex:column>
+                    
+                    <!-- NEW: Employee ID Column -->
+                    <apex:column value="{!emp.Employee_Id__c}" headerValue="Employee ID"/>
+                    
+                    <apex:column value="{!emp.Name}" headerValue="Name"/>
+                    <apex:column value="{!emp.Salary__c}" headerValue="Salary"/>
+                    <apex:column value="{!emp.JoiningDate__c}" headerValue="Joining Date"/>
+                    
+                    <!-- NEW: Department Column -->
+                    <apex:column value="{!emp.Department__c}" headerValue="Department"/>
+                    
+                    <apex:column headerValue="Actions">
+                        <apex:commandLink action="{!editEmployee}" value="Edit" style="margin-right:15px;">
+                            <apex:param name="idParam" value="{!emp.Id}" assignTo="{!selectedId}"/>
+                        </apex:commandLink>
+                        
+                        <apex:commandLink action="{!deleteEmployee}" value="Delete" 
+                                          onclick="return confirm('Are you sure you want to delete this employee?');">
+                            <apex:param name="idParam" value="{!emp.Id}" assignTo="{!selectedId}"/>
+                        </apex:commandLink>
+                    </apex:column>
+                    
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
