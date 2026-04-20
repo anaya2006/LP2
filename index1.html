@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Market Expert System</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+            background: #f4f6f8;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 85%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #333;
+            color: white;
+        }
+
+        .buy {
+            color: green;
+            font-weight: bold;
+        }
+
+        .sell {
+            color: red;
+            font-weight: bold;
+        }
+
+        .hold {
+            color: orange;
+            font-weight: bold;
+        }
+
+        form {
+            text-align: center;
+            margin: 20px;
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px;
+        }
+
+        .balance {
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .btn-update {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 15px;
+        }
+
+        .section {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📈 Stock Market Expert System</h1>
+
+    <div class="balance">
+        Balance: ${{ portfolio.balance }}
+    </div>
+
+    <table>
+        <tr>
+            <th>Symbol</th>
+            <th>Price</th>
+            <th>Available</th>
+            <th>AI Recommendation</th>
+            <th>Reason</th>
+        </tr>
+
+        {% for stock in portfolio.stocks.values() %}
+        <tr>
+            <td>{{ stock.symbol }}</td>
+            <td>${{ stock.price }}</td>
+            <td>{{ stock.quantity }}</td>
+
+            <!-- Recommendation with color -->
+            <td>
+                {% if recommendations[stock.symbol][0] == "BUY" %}
+                    <span class="buy">BUY</span>
+                {% elif recommendations[stock.symbol][0] == "SELL" %}
+                    <span class="sell">SELL</span>
+                {% else %}
+                    <span class="hold">HOLD</span>
+                {% endif %}
+            </td>
+
+            <!-- Reason -->
+            <td>
+                {{ recommendations[stock.symbol][1] }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="section">
+        <form action="/buy" method="post">
+            <h3>Buy Stock</h3>
+            <input type="text" name="symbol" placeholder="Symbol (AAPL)" required>
+            <input type="number" name="quantity" placeholder="Quantity" required>
+            <button type="submit">Buy</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <form action="/sell" method="post">
+            <h3>Sell Stock</h3>
+            <input type="text" name="symbol" placeholder="Symbol (GOOG)" required>
+            <input type="number" name="quantity" placeholder="Quantity" required>
+            <button type="submit">Sell</button>
+        </form>
+    </div>
+
+    <a href="/update">
+        <button class="btn-update">🔄 Update Prices</button>
+    </a>
+
+</body>
+</html>
