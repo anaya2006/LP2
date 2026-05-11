@@ -1,0 +1,199 @@
+public class StudentController {
+
+    // Object for form data
+    public Student__c student { get; set; }
+
+    // List to display records
+    public List<Student__c> studentList { get; set; }
+
+    // Check edit mode
+    public Boolean isEdit { get; set; }
+
+    // Constructor
+    public StudentController() {
+
+        student = new Student__c();
+
+        isEdit = false;
+
+        loadStudents();
+    }
+
+    // Load all students
+    public void loadStudents() {
+
+        studentList = [
+            SELECT Id,
+                   Name,
+                   Age__c,
+                   Email__c,
+                   Course__c
+            FROM Student__c
+        ];
+    }
+
+    // Save or Update Student
+    public void saveStudent() {
+
+        if(isEdit) {
+
+            update student;
+
+        } else {
+
+            insert student;
+        }
+
+        // Reset form
+        student = new Student__c();
+
+        isEdit = false;
+
+        loadStudents();
+    }
+
+    // Edit Student
+    public void editStudent() {
+
+        String studentId =
+            ApexPages.currentPage()
+            .getParameters()
+            .get('id');
+
+        student = [
+            SELECT Id,
+                   Name,
+                   Age__c,
+                   Email__c,
+                   Course__c
+            FROM Student__c
+            WHERE Id = :studentId
+            LIMIT 1
+        ];
+
+        isEdit = true;
+    }
+
+    // Delete Student
+    public void deleteStudent() {
+
+        String studentId =
+            ApexPages.currentPage()
+            .getParameters()
+            .get('id');
+
+        Student__c s = [
+            SELECT Id
+            FROM Student__c
+            WHERE Id = :studentId
+            LIMIT 1
+        ];
+
+        delete s;
+
+        loadStudents();
+    }
+}
+
+---------------------------------------------------
+
+<apex:page controller="StudentController">
+
+    <apex:form>
+
+        <apex:pageMessages />
+
+        <h1 style="font-size:28px;
+                   font-weight:bold;
+                   text-align:center;
+                   margin-bottom:20px;">
+
+            Student Management System
+
+        </h1>
+
+        <!-- FORM SECTION -->
+
+        <apex:pageBlock title="Add / Update Student">
+
+            <apex:pageBlockSection columns="1">
+
+                <apex:inputText value="{!student.Name}"
+                                label="Student Name"/>
+
+                <apex:inputText value="{!student.Age__c}"
+                                label="Age"/>
+
+                <apex:inputText value="{!student.Email__c}"
+                                label="Email"/>
+
+                <apex:inputText value="{!student.Course__c}"
+                                label="Course"/>
+
+            </apex:pageBlockSection>
+
+            <apex:commandButton value="Save / Update"
+                                action="{!saveStudent}"
+                                rerender="studentTable"/>
+
+        </apex:pageBlock>
+
+        <br/>
+
+        <!-- TABLE SECTION -->
+
+        <apex:pageBlock title="Student Records"
+                         id="studentTable">
+
+            <apex:pageBlockTable value="{!studentList}"
+                                 var="s">
+
+                <apex:column value="{!s.Name}"
+                             headerValue="Name"/>
+
+                <apex:column value="{!s.Age__c}"
+                             headerValue="Age"/>
+
+                <apex:column value="{!s.Email__c}"
+                             headerValue="Email"/>
+
+                <apex:column value="{!s.Course__c}"
+                             headerValue="Course"/>
+
+                <!-- EDIT BUTTON -->
+
+                <apex:column headerValue="Edit">
+
+                    <apex:commandLink value="Edit"
+                                      action="{!editStudent}"
+                                      rerender="studentTable">
+
+                        <apex:param name="id"
+                                    value="{!s.Id}" />
+
+                    </apex:commandLink>
+
+                </apex:column>
+
+                <!-- DELETE BUTTON -->
+
+                <apex:column headerValue="Delete">
+
+                    <apex:commandLink value="Delete"
+                                      action="{!deleteStudent}"
+                                      rerender="studentTable">
+
+                        <apex:param name="id"
+                                    value="{!s.Id}" />
+
+                    </apex:commandLink>
+
+                </apex:column>
+
+            </apex:pageBlockTable>
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+</apex:page>
