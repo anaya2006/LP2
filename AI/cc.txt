@@ -1,0 +1,47 @@
+CC1
+# mv ~/Downloads/<pem key name>.pem ~/.ssh/
+# chmod 400 ~/.ssh/<pem key name>.pem 
+# ssh -i ~/.ssh/<pem key name>.pem ec2-user <ec-2 public ip>
+
+CC2:
+# Practical: Installation and Configuration of Virtualization using KVM
+
+# Step 1: Check virtualization support
+egrep -c '(vmx|svm)' /proc/cpuinfo
+
+# Output > 0 means virtualization is enabled
+
+# Step 2: Update system packages
+sudo apt update
+
+# Step 3: Install KVM and virtualization packages
+sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager -y
+
+# Step 4: Add current user to required groups
+sudo adduser $USER libvirt
+sudo adduser $USER kvm
+
+# Step 5: Enable and start libvirt service
+sudo systemctl enable libvirtd --now
+
+# Step 6: Verify KVM installation
+virsh list --all
+
+# Step 7: Restart session
+# Logout and login again
+
+# Step 8: Open Virtual Machine Manager
+virt-manager
+
+# Step 9: Create Virtual Machine
+# - Select downloaded Debian ISO image
+# - Set RAM = 2048 MB
+# - Set CPU = 2
+# - Create virtual disk
+# - Start VM
+
+# Step 10: Run Python program inside Debian VM
+nano hello.py
+
+# Write:
+# print("Hello Debian VM")
